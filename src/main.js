@@ -1,8 +1,16 @@
 import Vue from 'vue'
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
-
-Vue.config.productionTip = false
+import axios from "axios";
+import IconSvg from "@/components/IconSvg";
+Vue.use(ElementUI);
 
 new Vue({
   render: h => h(App),
+  beforeCreate() {
+    Vue.prototype.$bus = this;
+    Vue.prototype.$axios = axios;
+    Vue.component('icon-svg',IconSvg)
+  }
 }).$mount('#app')
