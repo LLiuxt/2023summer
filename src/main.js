@@ -5,6 +5,9 @@ import App from './App.vue'
 import axios from "axios";
 import IconSvg from "@/components/IconSvg";
 Vue.use(ElementUI);
+import VueRouter from 'vue-router'
+
+Vue.use(VueRouter)
 
 new Vue({
   render: h => h(App),

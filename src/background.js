@@ -1,8 +1,8 @@
 'use strict'
 
-const { app, protocol, BrowserWindow ,ipcMain} =require("electron")
+const { app, protocol, BrowserWindow ,ipcMain,Menu} =require("electron")
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+// import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const path = require('path')
 
@@ -14,10 +14,11 @@ protocol.registerSchemesAsPrivileged([
 let win
 async function createWindow() {
   // Create the browser window.
+  Menu.setApplicationMenu(null)
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    frame:false,
+    // frame:false,
     minWidth:720,
     minHeight: 550,
     webPreferences: {
@@ -25,7 +26,7 @@ async function createWindow() {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-      preload:path.join(__dirname, 'preload.js')
+      preload:path.resolve(__dirname,'preload.js')
     }
 
   })
@@ -41,6 +42,41 @@ async function createWindow() {
   }
 }
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', async () => {
+  // if (isDevelopment && !process.env.IS_TEST) {
+  //   // Install Vue Devtools
+  //   try {
+  //     await installExtension(VUEJS_DEVTOOLS)
+  //   } catch (e) {
+  //     console.error('Vue Devtools failed to install:', e.toString())
+  //   }
+  // }
+
+  await ipcMain.handle('closeWin',async ()=>{
+    win.close()
+  })
+  await ipcMain.handle('maxWin',async ()=>{
+    if (!win.isMaximized()){
+      win.maximize()
+    }else{
+      win.restore()
+    }
+  })
+  await ipcMain.handle('minWin',async ()=>{
+    if (!win.isMinimized()){
+      win.minimize()
+    }else {
+      win.restore()
+    }
+  })
+
+  await createWindow()
+})
+
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
@@ -55,42 +91,6 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-
-app.on('ready', async () => {
-  // if (isDevelopment && !process.env.IS_TEST) {
-  //   // Install Vue Devtools
-  //   try {
-  //     await installExtension(VUEJS_DEVTOOLS)
-  //   } catch (e) {
-  //     console.error('Vue Devtools failed to install:', e.toString())
-  //   }
-  // }
-
-  ipcMain.handle('closeWin',async ()=>{
-    win.close()
-  })
-  ipcMain.handle('maxWin',async ()=>{
-    if (!win.isMaximized()){
-      win.maximize()
-    }else{
-      win.restore()
-    }
-  })
-  ipcMain.handle('minWin',async ()=>{
-    if (!win.isMinimized()){
-      win.minimize()
-    }else {
-      win.restore()
-    }
-  })
-
-    await createWindow()
-})
-
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

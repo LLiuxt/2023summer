@@ -25,3 +25,6 @@ contextBridge.exposeInMainWorld("winAPI",{
         }
     }
 })
+//
+// console.log('Preload script loaded successfully!');
+// window.preloadLoaded = true;
